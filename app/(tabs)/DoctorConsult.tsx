@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { View, Text, StyleSheet, Alert, ActivityIndicator, FlatList } from "react-native";
+import { View, Text, StyleSheet, Alert, ActivityIndicator, FlatList, TouchableOpacity, Linking } from "react-native";
 import * as Location from "expo-location";
 
 export default function DoctorConsultScreen() {
@@ -27,7 +27,28 @@ export default function DoctorConsultScreen() {
         const data = await response.json();
 
         if (data.results && data.results.length > 0) {
-          setHospitals(data.results);
+          const enrichedHospitals = await Promise.all(
+            data.results.map(async (hospital: any) => {
+              const detailsResponse = await fetch(
+                `https://maps.googleapis.com/maps/api/place/details/json?place_id=${hospital.place_id}&fields=name,vicinity,formatted_phone_number,rating,geometry&key=AIzaSyCMrNFVUYbfMsVRWl7J8NbmOaN3qc5v6vo`
+              );
+              const detailsData = await detailsResponse.json();
+              if (detailsData.result) {
+                return {
+                  ...detailsData.result,
+                  distance: calculateDistance(
+                    latitude,
+                    longitude,
+                    detailsData.result.geometry.location.lat,
+                    detailsData.result.geometry.location.lng
+                  ),
+                };
+              }
+              return null;
+            })
+          );
+
+          setHospitals(enrichedHospitals.filter((h) => h !== null));
         } else {
           setHospitals([]);
         }
@@ -38,6 +59,24 @@ export default function DoctorConsultScreen() {
       }
     })();
   }, []);
+
+  // Function to calculate distance using Haversine formula
+  const calculateDistance = (lat1: number, lon1: number, lat2: number, lon2: number) => {
+    const R = 6371; // Radius of the Earth in km
+    const dLat = ((lat2 - lat1) * Math.PI) / 180;
+    const dLon = ((lon2 - lon1) * Math.PI) / 180;
+    const a =
+      Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+      Math.cos((lat1 * Math.PI) / 180) * Math.cos((lat2 * Math.PI) / 180) *
+      Math.sin(dLon / 2) * Math.sin(dLon / 2);
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+    return (R * c).toFixed(2); // Distance in km
+  };
+
+  // Function to handle calling the hospital
+  const makeCall = (phoneNumber: string) => {
+    Linking.openURL(`tel:${phoneNumber}`);
+  };
 
   return (
     <View style={styles.container}>
@@ -52,6 +91,19 @@ export default function DoctorConsultScreen() {
               <View style={styles.card}>
                 <Text style={styles.text}>🏥 {item.name}</Text>
                 <Text style={styles.text}>📍 {item.vicinity}</Text>
+                {item.formatted_phone_number && (
+                  <View>
+                    <Text style={styles.text}>📞 {item.formatted_phone_number}</Text>
+                    <TouchableOpacity
+                      style={styles.callButton}
+                      onPress={() => makeCall(item.formatted_phone_number)}
+                    >
+                      <Text style={styles.callButtonText}>Call</Text>
+                    </TouchableOpacity>
+                  </View>
+                )}
+                {item.rating && <Text style={styles.text}>⭐ Rating: {item.rating}/5</Text>}
+                {item.distance && <Text style={styles.text}>📏 Distance: {item.distance} km</Text>}
               </View>
             ) : null
           }
@@ -77,9 +129,29 @@ const styles = StyleSheet.create({
     marginVertical: 8,
     borderRadius: 10,
     width: "100%",
+    position: "relative",
   },
   text: {
     color: "#fff",
     fontSize: 16,
+  },
+  callButton: {
+    position: "absolute",
+    bottom: -5,
+    right: -5,
+    backgroundColor: "#4CAF50",
+    paddingVertical: 8,
+    paddingHorizontal: 15,
+    borderRadius: 10,
+    shadowColor: "#000",
+    shadowOffset: { width: 2, height: 2 },
+    shadowOpacity: 0.3,
+    shadowRadius: 3,
+    elevation: 3,
+  },
+  callButtonText: {
+    color: "#fff",
+    fontSize: 14,
+    fontWeight: "bold",
   },
 });

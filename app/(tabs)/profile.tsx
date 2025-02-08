@@ -1,26 +1,31 @@
 import { useState, useRef, useEffect } from "react";
-import { 
-  Text, 
-  View, 
-  TextInput, 
-  StyleSheet, 
-  ScrollView, 
-  TouchableOpacity, 
-  Animated, 
-  KeyboardAvoidingView, 
-  Platform, 
-  Alert 
+import {
+  Text,
+  View,
+  TextInput,
+  StyleSheet,
+  ScrollView,
+  TouchableOpacity,
+  Animated,
+  KeyboardAvoidingView,
+  Platform,
+  Alert
 } from "react-native";
+import { useLanguage } from "@/components/LanguageContext";
+import translations from "@/components/translation";
 
 export default function ProfileScreen() {
+  const { language } = useLanguage();
+  const t = (key: string) => translations[language]?.[key] || key;
+
   const [userData, setUserData] = useState({
     name: "",
     age: "",
     gender: "",
-    bloodGroup: "",
-    medicalConditions: "",
-    healthInsurance: "",
-    dateOfBirth: "",
+    blood_group: "",
+    medical_conditions: "",
+    health_insurance: "",
+    date_of_birth: "",
   });
 
   const [isEditing, setIsEditing] = useState(false);
@@ -38,7 +43,7 @@ export default function ProfileScreen() {
 
   const handleSave = () => {
     setIsEditing(false);
-    Alert.alert("Profile Saved Successfully!");
+    Alert.alert(t("Profile Saved Successfully!"));
   };
 
   const handleEdit = () => {
@@ -50,18 +55,23 @@ export default function ProfileScreen() {
   };
 
   return (
-    <KeyboardAvoidingView behavior={Platform.OS === "ios" ? "padding" : "height"} style={{ flex: 1 }}>
+    <KeyboardAvoidingView
+      behavior={Platform.OS === "ios" ? "padding" : "height"}
+      style={{ flex: 1 }}
+    >
       <ScrollView contentContainerStyle={styles.container}>
         <Animated.Text style={[styles.header, { opacity: fadeAnim }]}>
-          User Profile
+          {t("User Profile")}
         </Animated.Text>
         <Animated.View style={[styles.card, { opacity: fadeAnim }]}>
           {Object.keys(userData).map((key) => (
             <View style={styles.inputContainer} key={key}>
-              <Text style={styles.label}>{key.replace(/([A-Z])/g, ' $1').trim()}</Text>
+              <Text style={styles.label}>
+                {t(key.replace(/([A-Z])/g, ' $1').trim())}
+              </Text>
               <TextInput
                 style={[styles.input, !isEditing && styles.disabledInput]}
-                placeholder={`Enter ${key}`}
+                placeholder={t(`Enter ${key}`)}
                 placeholderTextColor="#888"
                 value={userData[key as keyof typeof userData]}
                 onChangeText={(text) => handleChange(key as keyof typeof userData, text)}
@@ -73,11 +83,11 @@ export default function ProfileScreen() {
 
         {isEditing ? (
           <TouchableOpacity style={styles.saveButton} onPress={handleSave}>
-            <Text style={styles.saveText}>Save Profile</Text>
+            <Text style={styles.saveText}>{t("Save Profile")}</Text>
           </TouchableOpacity>
         ) : (
           <TouchableOpacity style={styles.editButton} onPress={handleEdit}>
-            <Text style={styles.editText}>Edit Profile</Text>
+            <Text style={styles.editText}>{t("Edit Profile")}</Text>
           </TouchableOpacity>
         )}
       </ScrollView>

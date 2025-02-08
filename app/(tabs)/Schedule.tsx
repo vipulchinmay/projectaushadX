@@ -1,24 +1,28 @@
-import { 
-  View, 
-  Text, 
-  StyleSheet, 
-  Alert, 
-  Button, 
-  FlatList, 
-  TouchableOpacity, 
-  Image, 
-  Linking, 
-  ScrollView, 
-  KeyboardAvoidingView, 
-  Platform 
+import {
+  View,
+  Text,
+  StyleSheet,
+  Alert,
+  Button,
+  FlatList,
+  TouchableOpacity,
+  Image,
+  Linking,
+  ScrollView,
+  KeyboardAvoidingView,
+  Platform
 } from "react-native";
 import React, { useState, useEffect } from "react";
 import { useLocalSearchParams } from "expo-router";
 import * as Notifications from "expo-notifications";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import Slider from "@react-native-community/slider";
+import { useLanguage } from "@/components/LanguageContext";
+import translations from "@/components/translation";
 
-// Configure notification handling
+const apollo = require("../../assets/images/apollo.png");
+const medplus = require("../../assets/images/medplus.png");
+
 Notifications.setNotificationHandler({
   handleNotification: async () => ({
     shouldShowAlert: true,
@@ -30,6 +34,8 @@ Notifications.setNotificationHandler({
 export default function Schedule() {
   const params = useLocalSearchParams();
   const { raw_response } = params;
+  const { language } = useLanguage();
+  const t = (key: string) => translations[language]?.[key] || key;
 
   const [days, setDays] = useState<number>(1);
   const [reminderTime, setReminderTime] = useState<Date>(new Date());
@@ -38,7 +44,7 @@ export default function Schedule() {
   useEffect(() => {
     console.log("Params:", params);
     if (!raw_response) {
-      Alert.alert("Error", "Some required data is missing.");
+      Alert.alert(t("Error"), t("Some required data is missing."));
     }
   }, [params]);
 
@@ -46,7 +52,7 @@ export default function Schedule() {
     async function requestPermissions() {
       const { status } = await Notifications.requestPermissionsAsync();
       if (status !== "granted") {
-        Alert.alert("Permission Denied", "Enable notifications in settings.");
+        Alert.alert(t("Permission Denied"), t("Enable notifications in settings."));
       }
     }
     requestPermissions();
@@ -59,7 +65,7 @@ export default function Schedule() {
       reminderDate.setDate(reminderDate.getDate() + i);
 
       if (reminderDate <= currentTime) {
-        Alert.alert("Invalid Time", "Please select a future time.");
+        Alert.alert(t("Invalid Time"), t("Please select a future time."));
         return;
       }
 
@@ -73,23 +79,26 @@ export default function Schedule() {
 
       await Notifications.scheduleNotificationAsync({
         content: {
-          title: "⏰ Reminder!",
-          body: `It's time for your medication. Day ${i + 1}`,
+          title: t("⏰ Reminder!"),
+          body: `${t("It's time for your medication")}. ${t("Day")} ${i + 1}`,
           sound: "default",
         },
         trigger,
       });
     }
 
-    Alert.alert("Reminders Set", `${days} reminders have been scheduled.`);
+    Alert.alert(
+      t("Reminders Set"), 
+      t("{{count}} reminders have been scheduled.").replace("{{count}}", days.toString())
+    );
   };
 
   const pharmacyOptions = [
-    { id: "1", name: "Apollo Pharmacy", logo: "https://www.apollopharmacy.in/static/logo.png", url: "https://www.apollopharmacy.in/" },
-    { id: "2", name: "Med Plus", logo: "https://medplusmart.com/assets/images/logo_new.png", url: "https://www.medplusmart.com/" },
-    { id: "3", name: "Netmeds", logo: "https://www.netmeds.com/assets/global/images/img_logo_netmeds.png", url: "https://www.netmeds.com/" },
-    { id: "4", name: "1mg", logo: "https://www.1mg.com/images/tata_1mg_logo.svg", url: "https://www.1mg.com/" },
-    { id: "5", name: "PharmEasy", logo: "https://assets.pharmeasy.in/web-assets/dist/9b3c895d.svg", url: "https://www.pharmeasy.in/" },
+    { id: "1", name: t("Apollo Pharmacy"), logo: apollo, url: "https://www.apollopharmacy.in/" },
+    { id: "2", name: t("Med Plus"), logo: medplus, url: "https://www.medplusmart.com/" },
+    { id: "3", name: t("Netmeds"), logo: "https://www.netmeds.com/assets/global/images/img_logo_netmeds.png", url: "https://www.netmeds.com/" },
+    { id: "4", name: t("1mg"), logo: "https://www.1mg.com/images/tata_1mg_logo.svg", url: "https://www.1mg.com/" },
+    { id: "5", name: t("PharmEasy"), logo: "https://assets.pharmeasy.in/web-assets/dist/9b3c895d.svg", url: "https://www.pharmeasy.in/" },
   ];
 
   const openWebsite = (url: string) => {
@@ -97,41 +106,40 @@ export default function Schedule() {
   };
 
   return (
-    <KeyboardAvoidingView 
-      behavior={Platform.OS === "ios" ? "padding" : "height"} 
+    <KeyboardAvoidingView
+      behavior={Platform.OS === "ios" ? "padding" : "height"}
       style={{ flex: 1 }}
     >
-      <ScrollView 
-        contentContainerStyle={styles.scrollContainer} 
+      <ScrollView
+        contentContainerStyle={styles.scrollContainer}
         keyboardShouldPersistTaps="handled"
       >
         <View style={styles.container}>
-          <Text style={styles.title}>Medicine Information</Text>
+          <Text style={styles.title}>{t("Medicine Information")}</Text>
 
           {raw_response ? (
             <View style={styles.infoContainer}>
               <Text style={styles.info}>{raw_response}</Text>
             </View>
           ) : (
-            <Text style={styles.info}>No valid data available.</Text>
+            <Text style={styles.info}>{t("No valid data available.")}</Text>
           )}
 
-          {/* Pharmacy Shopping Options */}
           <View style={styles.shoppingContainer}>
-            <Text style={styles.shoppingTitle}>Buy Your Medicine Online</Text>
+            <Text style={styles.shoppingTitle}>{t("Buy Your Medicine Online")}</Text>
             <FlatList
               horizontal
               data={pharmacyOptions}
               keyExtractor={(item) => item.id}
               showsHorizontalScrollIndicator={false}
               renderItem={({ item }) => (
-                <TouchableOpacity 
-                  style={styles.shoppingItem} 
+                <TouchableOpacity
+                  style={styles.shoppingItem}
                   onPress={() => openWebsite(item.url)}
                 >
-                  <Image 
-                    source={{ uri: item.logo }} 
-                    style={styles.shoppingImage} 
+                  <Image
+                    source={{ uri: item.logo }}
+                    style={styles.shoppingImage}
                   />
                   <Text style={styles.shoppingItemText}>{item.name}</Text>
                 </TouchableOpacity>
@@ -139,10 +147,11 @@ export default function Schedule() {
             />
           </View>
 
-          {/* Dosage Days Selector */}
           <View style={styles.section}>
-            <Text style={styles.label}>Select Dosage Days:</Text>
-            <Text style={styles.dayCount}>{days} {days === 1 ? "Day" : "Days"}</Text>
+            <Text style={styles.label}>{t("Select Dosage Days:")}</Text>
+            <Text style={styles.dayCount}>
+              {days} {days === 1 ? t("Day") : t("Days")}
+            </Text>
             <Slider
               style={styles.slider}
               minimumValue={1}
@@ -156,10 +165,9 @@ export default function Schedule() {
             />
           </View>
 
-          {/* Reminder Options */}
           <View style={styles.section}>
-            <Text style={styles.label}>Select Time for Reminder:</Text>
-            <Button title="Pick Time" onPress={() => setShowPicker(true)} />
+            <Text style={styles.label}>{t("Select Time for Reminder:")}</Text>
+            <Button title={t("Pick Time")} onPress={() => setShowPicker(true)} />
             {showPicker && (
               <DateTimePicker
                 value={reminderTime}
@@ -174,7 +182,7 @@ export default function Schedule() {
           </View>
 
           <View style={styles.section}>
-            <Button title="Set Reminders" onPress={scheduleReminders} />
+            <Button title={t("Set Reminders")} onPress={scheduleReminders} />
           </View>
         </View>
       </ScrollView>
