@@ -9,10 +9,13 @@ import {
   Animated,
   KeyboardAvoidingView,
   Platform,
-  Alert
+  Alert,
 } from "react-native";
+import axios from "axios";
 import { useLanguage } from "@/components/LanguageContext";
 import translations from "@/components/translation";
+
+const API_URL = "http://172.20.10.4:6000/profile";
 
 export default function ProfileScreen() {
   const { language } = useLanguage();
@@ -29,8 +32,6 @@ export default function ProfileScreen() {
   });
 
   const [isEditing, setIsEditing] = useState(false);
-
-  // Animation reference
   const fadeAnim = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
@@ -39,11 +40,29 @@ export default function ProfileScreen() {
       duration: 800,
       useNativeDriver: true,
     }).start();
+
+    fetchUserProfile();
   }, []);
 
-  const handleSave = () => {
-    setIsEditing(false);
-    Alert.alert(t("Profile Saved Successfully!"));
+  const fetchUserProfile = async () => {
+    try {
+      const response = await axios.get(`${API_URL}/${userData.name}`);
+      if (response.data.success) {
+        setUserData(response.data.user);
+      }
+    } catch (error) {
+      console.log("Error fetching user data:", error);
+    }
+  };
+
+  const handleSave = async () => {
+    try {
+      await axios.post(API_URL, userData);
+      setIsEditing(false);
+      Alert.alert(t("Profile Saved Successfully!"));
+    } catch (error) {
+      console.error("Error saving profile:", error);
+    }
   };
 
   const handleEdit = () => {
@@ -66,9 +85,7 @@ export default function ProfileScreen() {
         <Animated.View style={[styles.card, { opacity: fadeAnim }]}>
           {Object.keys(userData).map((key) => (
             <View style={styles.inputContainer} key={key}>
-              <Text style={styles.label}>
-                {t(key.replace(/([A-Z])/g, ' $1').trim())}
-              </Text>
+              <Text style={styles.label}>{t(key.replace(/([A-Z])/g, " $1").trim())}</Text>
               <TextInput
                 style={[styles.input, !isEditing && styles.disabledInput]}
                 placeholder={t(`Enter ${key}`)}

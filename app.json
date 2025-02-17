@@ -11,14 +11,22 @@
     "ios": {
       "supportsTablet": true,
       "infoPlist": {
-        "NSPhotoLibraryUsageDescription": "Allow this app to access your photos."
+        "NSPhotoLibraryUsageDescription": "Allow this app to access your photos.",
+        "NSCameraUsageDescription": "Allow this app to access your camera to capture photos of medicine prescriptions.",
+        "NSMicrophoneUsageDescription": "Allow this app to access your microphone when recording videos with prescriptions.",
+        "NSPhotoLibraryAddUsageDescription": "Allow this app to save captured prescription photos to your photo library."
       }
     },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/adaptive-icon.png",
         "backgroundColor": "#ffffff"
-      }
+      },
+      "permissions": [
+        "CAMERA",
+        "READ_EXTERNAL_STORAGE",
+        "WRITE_EXTERNAL_STORAGE"
+      ]
     },
     "web": {
       "bundler": "metro",
@@ -36,7 +44,15 @@
           "backgroundColor": "#ffffff"
         }
       ],
-      "expo-localization"
+      "expo-localization",
+      [
+        "expo-camera",
+        {
+          "cameraPermission": "Allow $(PRODUCT_NAME) to access your camera.",
+          "microphonePermission": "Allow $(PRODUCT_NAME) to access your microphone",
+          "photosPermission": "Allow $(PRODUCT_NAME) to access your photos"
+        }
+      ]
     ],
     "experiments": {
       "typedRoutes": true

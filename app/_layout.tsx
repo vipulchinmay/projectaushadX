@@ -1,12 +1,17 @@
 import { Stack } from "expo-router";
-import React from "react";
-import { LogBox } from "react-native";
+import React, { useState } from "react";
+import { LogBox, View } from "react-native";
 import { LanguageProvider } from "@/components/LanguageContext";
+import SplashScreenComponent from "@/components/SplashScreen"; // Import splash screen
 
 LogBox.ignoreAllLogs(true);
 
 export default function RootLayout() {
-  return (
+  const [showSplash, setShowSplash] = useState(true);
+
+  return showSplash ? (
+    <SplashScreenComponent onFinish={() => setShowSplash(false)} />
+  ) : (
     <LanguageProvider>
       <Stack>
         <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
