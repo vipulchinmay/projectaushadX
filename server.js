@@ -97,4 +97,4 @@ app.delete("/profile/:id", async (req, res) => {
 });
 
 const PORT = 6000;
-app.listen(PORT, () => console.log(`🚀 Server running on http://127.0.0.1:${PORT}`));
+app.listen(PORT, () => console.log(`🚀 Server running on http://192.168.1.6:${PORT}`));
