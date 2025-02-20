@@ -90,7 +90,7 @@ export default function Index() {
       reader.onloadend = async () => {
         const base64Image = reader.result.split(",")[1];
 
-        const serverResponse = await fetch("http://192.168.1.103:5000/scan", {
+        const serverResponse = await fetch("http://127.0.0.1:5000/scan", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ image: base64Image }),

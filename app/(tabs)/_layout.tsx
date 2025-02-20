@@ -70,7 +70,7 @@ export default function TabLayout() {
   const tabScreens = [
     {
       name: "index",
-      title: "AushadX",
+      title: "Home",
       icon: { focused: "home-sharp", outline: "home-outline" }
     },
     {
@@ -85,8 +85,13 @@ export default function TabLayout() {
     },
     {
       name: "Schedule",
-      title: "Schedule Medication",
+      title: "Schedule",
       icon: { focused: "calendar", outline: "calendar-outline" }
+    },
+    {
+      name:"Share",
+      title:"Share Profile",
+      icon: { focused:"share-social", outline: "share-social-outline" }
     }
   ];
 
