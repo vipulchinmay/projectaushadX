@@ -12,10 +12,12 @@ import {
   KeyboardAvoidingView,
   Platform
 } from "react-native";
-import axios from "axios"
+import axios from "axios";
 import React, { useState, useEffect } from "react";
 import { useLocalSearchParams } from "expo-router";
 import * as Notifications from "expo-notifications";
+import * as Speech from "expo-speech";
+import { Feather } from "@expo/vector-icons";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import Slider from "@react-native-community/slider";
 import { useLanguage } from "@/components/LanguageContext";
@@ -37,26 +39,45 @@ export default function Schedule() {
   const { raw_response } = params;
   const { language } = useLanguage();
   const t = (key: string) => translations[language]?.[key] || key;
-
   const [days, setDays] = useState<number>(1);
   const [reminderTime, setReminderTime] = useState<Date>(new Date());
   const [showPicker, setShowPicker] = useState<boolean>(false);
+  const [speaking, setSpeaking] = useState<boolean>(false);
 
-  // const sendDetails=async()=>{
-  //   try {
-  //     const response=await axios.post("http://172.16.30.163:6000/storeInfo",{raw_response})
-  //     const data=response.data
-  //     console.log(data)
-  //   } catch (error) {
-  //     console.log(error)
-  //   }
-  // }
-  // }
-  // useEffect(()=>{
-  //   const details=async()=>{
-  //     await sendDetails();
-  //   }
-  //   ,)
+  // Function to handle text-to-speech
+  const speakText = () => {
+    if (speaking) {
+      Speech.stop();
+      setSpeaking(false);
+      return;
+    }
+
+    if (raw_response) {
+      setSpeaking(true);
+      Speech.speak(raw_response.toString(), {
+        language: language === 'hi' ? 'hi-IN' : 'en-US',
+        pitch: 1.0,
+        rate: 0.9,
+        onDone: () => setSpeaking(false),
+        onError: () => {
+          setSpeaking(false);
+          Alert.alert(t("Error"), t("Failed to speak text. Please try again."));
+        }
+      });
+    } else {
+      Alert.alert(t("Error"), t("No text available to speak."));
+    }
+  };
+
+  // Stop speaking when component unmounts
+  useEffect(() => {
+    return () => {
+      if (speaking) {
+        Speech.stop();
+      }
+    };
+  }, [speaking]);
+
   useEffect(() => {
     console.log("Params:", params);
     if (!raw_response) {
@@ -79,12 +100,10 @@ export default function Schedule() {
     for (let i = 0; i < days; i++) {
       const reminderDate = new Date(reminderTime);
       reminderDate.setDate(reminderDate.getDate() + i);
-
       if (reminderDate <= currentTime) {
         Alert.alert(t("Invalid Time"), t("Please select a future time."));
         return;
       }
-
       const trigger = {
         year: reminderDate.getFullYear(),
         month: reminderDate.getMonth(),
@@ -92,7 +111,6 @@ export default function Schedule() {
         hour: reminderDate.getHours(),
         minute: reminderDate.getMinutes(),
       };
-
       await Notifications.scheduleNotificationAsync({
         content: {
           title: t("⏰ Reminder!"),
@@ -102,7 +120,6 @@ export default function Schedule() {
         trigger,
       });
     }
-
     Alert.alert(
       t("Reminders Set"), 
       t("{{count}} reminders have been scheduled.").replace("{{count}}", days.toString())
@@ -132,15 +149,25 @@ export default function Schedule() {
       >
         <View style={styles.container}>
           <Text style={styles.title}>{t("Medicine Information")}</Text>
-
           {raw_response ? (
             <View style={styles.infoContainer}>
-              <Text style={styles.info}>{raw_response}</Text>
+              <View style={styles.infoHeader}>
+                <Text style={styles.info}>{raw_response}</Text>
+                <TouchableOpacity 
+                  style={[styles.speakerButton, speaking && styles.speakerButtonActive]} 
+                  onPress={speakText}
+                >
+                  <Feather 
+                    name={speaking ? "volume-2" : "volume"} 
+                    size={24} 
+                    color={speaking ? "#1E90FF" : "#333"} 
+                  />
+                </TouchableOpacity>
+              </View>
             </View>
           ) : (
             <Text style={styles.info}>{t("No valid data available.")}</Text>
           )}
-
           <View style={styles.shoppingContainer}>
             <Text style={styles.shoppingTitle}>{t("Buy Your Medicine Online")}</Text>
             <FlatList
@@ -154,7 +181,7 @@ export default function Schedule() {
                   onPress={() => openWebsite(item.url)}
                 >
                   <Image
-                    source={{ uri: item.logo }}
+                    source={typeof item.logo === 'string' ? { uri: item.logo } : item.logo}
                     style={styles.shoppingImage}
                   />
                   <Text style={styles.shoppingItemText}>{item.name}</Text>
@@ -162,7 +189,6 @@ export default function Schedule() {
               )}
             />
           </View>
-
           <View style={styles.section}>
             <Text style={styles.label}>{t("Select Dosage Days:")}</Text>
             <Text style={styles.dayCount}>
@@ -180,7 +206,6 @@ export default function Schedule() {
               thumbTintColor="#1E90FF"
             />
           </View>
-
           <View style={styles.section}>
             <Text style={styles.label}>{t("Select Time for Reminder:")}</Text>
             <Button title={t("Pick Time")} onPress={() => setShowPicker(true)} />
@@ -190,13 +215,12 @@ export default function Schedule() {
                 mode="time"
                 display="default"
                 onChange={(event, selectedDate) => {
-                  setShowPicker(false);
+                  setShowPicker(Platform.OS === 'ios' ? true : false);
                   if (selectedDate) setReminderTime(selectedDate);
                 }}
               />
             )}
           </View>
-
           <View style={styles.section}>
             <Button title={t("Set Reminders")} onPress={scheduleReminders} />
           </View>
@@ -231,9 +255,25 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.1,
     shadowRadius: 5,
     marginTop: 10,
+    width: "100%",
+  },
+  infoHeader: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "flex-start",
   },
   info: {
     fontSize: 16,
+    flex: 1,
+  },
+  speakerButton: {
+    marginLeft: 10,
+    padding: 8,
+    borderRadius: 20,
+    backgroundColor: "#f0f0f0",
+  },
+  speakerButtonActive: {
+    backgroundColor: "#e6f2ff",
   },
   shoppingContainer: {
     width: "100%",

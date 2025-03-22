@@ -28,7 +28,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import 'react-native-gesture-handler';
 // Rest of your imports
 // Base API URL for all requests
-const API_URL = "http://172.20.10.2:6000";
+const API_URL = "http://172.20.10.5:6000";
 
 // Interface for recent contacts
 interface RecentContact {

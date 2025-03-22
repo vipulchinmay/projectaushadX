@@ -10,7 +10,7 @@ require("dotenv").config(); // Load environment variables
 const app = express();
 
 // Enable CORS with specific origins
-app.use(cors({ origin: process.env.FRONTEND_URL || "http://localhost:3000" }));
+app.use(cors({ origin: process.env.FRONTEND_URL || "http://172.20.10.5:3000" }));
 app.use(express.json());
 
 // Set up storage for uploaded images
