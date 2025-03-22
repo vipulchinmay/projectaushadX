@@ -4,18 +4,19 @@ const cors = require("cors");
 const multer = require("multer");
 const path = require("path");
 const fs = require("fs");
+const twilio = require("twilio");
+require("dotenv").config(); // Load environment variables
 
 const app = express();
 
-// Enable CORS with specific origins (Optional: Replace "*" with frontend URL)
-app.use(cors({ origin: "*" }));
+// Enable CORS with specific origins
+app.use(cors({ origin: process.env.FRONTEND_URL || "http://localhost:3000" }));
 app.use(express.json());
 
 // Set up storage for uploaded images
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
     const uploadDir = path.join(__dirname, "uploads");
-    // Create the directory if it doesn't exist
     if (!fs.existsSync(uploadDir)) {
       fs.mkdirSync(uploadDir, { recursive: true });
     }
@@ -32,11 +33,7 @@ const upload = multer({
   limits: { fileSize: 5 * 1024 * 1024 }, // 5MB limit
   fileFilter: (req, file, cb) => {
     if (file.fieldname === "photo") {
-      if (
-        file.mimetype === "image/png" ||
-        file.mimetype === "image/jpg" ||
-        file.mimetype === "image/jpeg"
-      ) {
+      if (file.mimetype === "image/png" || file.mimetype === "image/jpg" || file.mimetype === "image/jpeg") {
         cb(null, true);
       } else {
         cb(null, false);
@@ -53,7 +50,7 @@ app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
 // Connect to MongoDB
 mongoose
-  .connect("mongodb://localhost:27017/profile", {
+  .connect(process.env.MONGODB_URI || "mongodb://localhost:27017/vnr", {
     useNewUrlParser: true,
     useUnifiedTopology: true,
   })
@@ -76,7 +73,10 @@ const userSchema = new mongoose.Schema({
 
 const User = mongoose.model("User", userSchema);
 
-// Save or Update Profile (Uses _id instead of name)
+// Twilio credentials
+const twilioClient = twilio(process.env.TWILIO_ACCOUNT_SID, process.env.TWILIO_AUTH_TOKEN);
+
+// Save or Update Profile
 app.post("/profile", upload.single("photo"), async (req, res) => {
   try {
     const { _id, name, age, gender, blood_group, medical_conditions, health_insurance, date_of_birth } = req.body;
@@ -106,11 +106,7 @@ app.post("/profile", upload.single("photo"), async (req, res) => {
     let user;
     if (_id) {
       // Update Existing User
-      user = await User.findByIdAndUpdate(
-        _id,
-        userData,
-        { new: true }
-      );
+      user = await User.findByIdAndUpdate(_id, userData, { new: true });
     } else {
       // Create New User
       userData.created_at = new Date();
@@ -129,8 +125,9 @@ app.post("/profile", upload.single("photo"), async (req, res) => {
 app.get("/profile/:id", async (req, res) => {
   try {
     const user = await User.findById(req.params.id);
-    if (!user) return res.status(404).json({ success: false, message: "User not found" });
-
+    if (!user) {
+      return res.status(404).json({ success: false, message: "User not found" });
+    }
     res.json({ success: true, user });
   } catch (err) {
     console.error("Error:", err);
@@ -138,7 +135,21 @@ app.get("/profile/:id", async (req, res) => {
   }
 });
 
-// Fetch All Profiles (Optional)
+// Fetch Profile by Name
+app.get("/profile/name/:name", async (req, res) => {
+  try {
+    const user = await User.findOne({ name: req.params.name });
+    if (!user) {
+      return res.status(404).json({ success: false, message: "User not found" });
+    }
+    res.json({ success: true, user });
+  } catch (err) {
+    console.error("Error:", err);
+    res.status(500).json({ success: false, message: "Internal Server Error" });
+  }
+});
+
+// Fetch All Profiles
 app.get("/profiles", async (req, res) => {
   try {
     const users = await User.find();
@@ -152,7 +163,9 @@ app.get("/profiles", async (req, res) => {
 app.delete("/profile/:id", async (req, res) => {
   try {
     const user = await User.findById(req.params.id);
-    if (!user) return res.status(404).json({ success: false, message: "User not found" });
+    if (!user) {
+      return res.status(404).json({ success: false, message: "User not found" });
+    }
 
     // Delete associated photo if it exists
     if (user.photo) {
@@ -169,5 +182,31 @@ app.delete("/profile/:id", async (req, res) => {
   }
 });
 
-const PORT = 6000;
-app.listen(PORT, () => console.log(`🚀 Server running on http://192.168.1.6:${PORT}`));
+// Send SMS with User Info
+app.post("/getno", async (req, res) => {
+  try {
+    const { userData, phoneNumber } = req.body;
+
+    if (!userData || !phoneNumber) {
+      return res.status(400).json({ success: false, message: "Missing user data or phone number." });
+    }
+
+    // Construct the SMS message
+    const message = `User Details:\nName: ${userData.name}\nAge: ${userData.age}\nGender: ${userData.gender}\nBlood Group: ${userData.blood_group}\nDate of Birth: ${userData.date_of_birth}\nMedical Conditions: ${userData.medical_conditions || "None"}\nHealth Insurance: ${userData.health_insurance || "None"}`;
+
+    // Send SMS using Twilio
+    await twilioClient.messages.create({
+      body: message,
+      from: process.env.TWILIO_PHONE_NUMBER,
+      to: phoneNumber,
+    });
+
+    res.json({ success: true, message: "SMS sent successfully!" });
+  } catch (error) {
+    console.error("Error sending SMS:", error);
+    res.status(500).json({ success: false, message: "Failed to send SMS." });
+  }
+});
+
+const PORT = process.env.PORT || 6000;
+app.listen(PORT, () => console.log(`🚀 Server running on http://localhost:${PORT}`));

@@ -12,6 +12,7 @@ import {
   KeyboardAvoidingView,
   Platform
 } from "react-native";
+import axios from "axios"
 import React, { useState, useEffect } from "react";
 import { useLocalSearchParams } from "expo-router";
 import * as Notifications from "expo-notifications";
@@ -41,6 +42,21 @@ export default function Schedule() {
   const [reminderTime, setReminderTime] = useState<Date>(new Date());
   const [showPicker, setShowPicker] = useState<boolean>(false);
 
+  // const sendDetails=async()=>{
+  //   try {
+  //     const response=await axios.post("http://172.16.30.163:6000/storeInfo",{raw_response})
+  //     const data=response.data
+  //     console.log(data)
+  //   } catch (error) {
+  //     console.log(error)
+  //   }
+  // }
+  // }
+  // useEffect(()=>{
+  //   const details=async()=>{
+  //     await sendDetails();
+  //   }
+  //   ,)
   useEffect(() => {
     console.log("Params:", params);
     if (!raw_response) {

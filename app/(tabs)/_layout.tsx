@@ -87,11 +87,6 @@ export default function TabLayout() {
       name: "Schedule",
       title: "Schedule",
       icon: { focused: "calendar", outline: "calendar-outline" }
-    },
-    {
-      name:"Share",
-      title:"Share Profile",
-      icon: { focused:"share-social", outline: "share-social-outline" }
     }
   ];
 

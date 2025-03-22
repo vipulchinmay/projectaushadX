@@ -11,6 +11,8 @@ import {
   Dimensions,
 } from "react-native";
 import * as Location from "expo-location";
+import 'react-native-gesture-handler';
+// Rest of your imports
 import MapView, { Marker } from "react-native-maps";
 
 const { width, height } = Dimensions.get("window");
