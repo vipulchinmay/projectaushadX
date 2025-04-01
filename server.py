@@ -35,6 +35,7 @@ def returnlang(selected_language):
 
 @app.route('/scan', methods=['POST'])
 def scan_medicine():
+    print("this is running")
     try:
         print("✅ Image received. Starting the OCR processing...")
 

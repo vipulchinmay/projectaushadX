@@ -5,6 +5,7 @@ import { StyleSheet, TouchableOpacity, Text, Linking, View, Alert, Modal, FlatLi
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useLanguage } from "@/components/LanguageContext";
 import translations from "@/components/translation";
+import { title } from "process";
 
 export default function TabLayout() {
   const [darkMode, setDarkMode] = useState(true);
@@ -87,6 +88,11 @@ export default function TabLayout() {
       name: "Schedule",
       title: "Schedule",
       icon: { focused: "calendar", outline: "calendar-outline" }
+    },
+    {
+      name:"AIChat",
+      title: "AIChat",
+      icon:{ focused:"chatbubble", outline: "chatbubble-outline"}
     }
   ];
 

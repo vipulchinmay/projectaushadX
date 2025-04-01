@@ -10,7 +10,7 @@ import translations from "@/components/translation";
 import { BlurView } from "expo-blur";
 import 'react-native-gesture-handler';
 import { LinearGradient } from "expo-linear-gradient";
-import { MaterialCommunityIcons, Ionicons } from '@expo/vector-icons';
+import { MaterialCommunityIcons, Ionicons, FontAwesome } from '@expo/vector-icons';
 import LottieView from 'lottie-react-native';
 
 const { width, height } = Dimensions.get('window');
@@ -35,6 +35,7 @@ export default function Index() {
   const buttonOpacity = useRef(new Animated.Value(1)).current;
   const imageSlideUp = useRef(new Animated.Value(50)).current;
   const imageScale = useRef(new Animated.Value(0.95)).current;
+  const aiButtonAnim = useRef(new Animated.Value(0)).current;
 
   // Start rotation animation for loading spinner
   useEffect(() => {
@@ -73,6 +74,12 @@ export default function Index() {
         duration: 500,
         delay: 300,
         easing: Easing.out(Easing.quad),
+        useNativeDriver: true,
+      }),
+      Animated.spring(aiButtonAnim, {
+        toValue: 1,
+        friction: 6,
+        tension: 40,
         useNativeDriver: true,
       })
     ]).start();
@@ -226,7 +233,7 @@ export default function Index() {
         const base64Image = reader.result.split(",")[1];
 
         // Send the selected language along with the image
-        const serverResponse = await fetch("http://172.20.10.5:5000/scan", {
+        const serverResponse = await fetch("http://192.168.108.195:5000/scan", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ 
@@ -259,6 +266,26 @@ export default function Index() {
     }
   };
 
+  // Navigate to AI chat screen
+  const openAIChat = () => {
+    // Animate button press
+    Animated.sequence([
+      Animated.timing(buttonScale, {
+        toValue: 0.9,
+        duration: 100,
+        useNativeDriver: true
+      }),
+      Animated.timing(buttonScale, {
+        toValue: 1,
+        duration: 100,
+        useNativeDriver: true
+      })
+    ]).start();
+    
+    // Navigate to the chat screen
+    navigation.navigate("AIChat");
+  };
+
   // Animation interpolations
   const spinInterpolation = loadingRotation.interpolate({
     inputRange: [0, 1],
@@ -273,6 +300,38 @@ export default function Index() {
         style={styles.gradientBackground}
       >
         <View style={styles.container}>
+          {/* AI Chat Button */}
+          <Animated.View 
+            style={[
+              styles.aiButtonContainer,
+              {
+                opacity: aiButtonAnim,
+                transform: [
+                  { scale: aiButtonAnim },
+                  { translateY: aiButtonAnim.interpolate({
+                    inputRange: [0, 1],
+                    outputRange: [10, 0]
+                  })}
+                ]
+              }
+            ]}
+          >
+            <TouchableOpacity
+              style={styles.aiButton}
+              onPress={openAIChat}
+              activeOpacity={0.8}
+            >
+              <LinearGradient
+                colors={['#4466EE', '#5D5DFD']}
+                style={styles.aiButtonGradient}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 1, y: 1 }}
+              >
+                <FontAwesome name="comment-medical" size={22} color="white" />
+              </LinearGradient>
+            </TouchableOpacity>
+          </Animated.View>
+
           {!selectedImage ? (
             <Animated.View 
               style={[
@@ -454,6 +513,30 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight : 0,
     paddingBottom: 0,
+  },
+  // New AI button styles
+  aiButtonContainer: {
+    position: 'absolute',
+    top: Platform.OS === 'ios' ? 12 : StatusBar.currentHeight + 12 || 12,
+    right: 16,
+    zIndex: 100,
+  },
+  aiButton: {
+    width: 56,
+    height: 56,
+    borderRadius: 28,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 6,
+    elevation: 8,
+  },
+  aiButtonGradient: {
+    width: 56,
+    height: 56,
+    borderRadius: 28,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   welcomeContainer: {
     flex: 1,

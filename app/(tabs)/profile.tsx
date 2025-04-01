@@ -28,7 +28,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import 'react-native-gesture-handler';
 // Rest of your imports
 // Base API URL for all requests
-const API_URL = "http://172.20.10.5:6000";
+const API_URL = "http://192.168.108.195:6000";
 
 // Interface for recent contacts
 interface RecentContact {
@@ -45,7 +45,6 @@ interface UserData {
   gender: string;
   blood_group: string;
   medical_conditions: string;
-  health_insurance: string;
   date_of_birth: string;
   photo: string | null;
   _id?: string;
@@ -63,7 +62,6 @@ export default function ProfileScreen() {
     gender: "",
     blood_group: "",
     medical_conditions: "",
-    health_insurance: "",
     date_of_birth: "",
     photo: null,
   });
