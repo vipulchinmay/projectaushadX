@@ -233,7 +233,7 @@ export default function Index() {
         const base64Image = reader.result.split(",")[1];
 
         // Send the selected language along with the image
-        const serverResponse = await fetch("http://192.168.1.102:5000/scan", {
+        const serverResponse = await fetch("http://192.168.29.85:5000/scan", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ 

@@ -89,8 +89,7 @@
     "react-native-webview": "13.13.5",
     "react-navigation-shared-element": "^3.1.3",
     "twilio": "^5.5.1",
-    "uuid": "^11.1.0",
-    "undefined": "nanoid/non-secure"
+    "uuid": "^11.1.0"
   },
   "devDependencies": {
     "@babel/core": "^7.25.2",
