@@ -92,7 +92,7 @@ export default function TabLayout() {
     {
       name:"AIChat",
       title: "AIChat",
-      icon:{ focused:"chatbubble", outline: "chatbubble-outline"}
+      icon:{ focused:"fitness", outline: "fitness-outline"}
     }
   ];
 

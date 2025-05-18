@@ -25,8 +25,14 @@
       "permissions": [
         "CAMERA",
         "READ_EXTERNAL_STORAGE",
-        "WRITE_EXTERNAL_STORAGE"
-      ]
+        "WRITE_EXTERNAL_STORAGE",
+        "android.permission.CAMERA",
+        "android.permission.RECORD_AUDIO",
+        "android.permission.BLUETOOTH",
+        "android.permission.BLUETOOTH_ADMIN",
+        "android.permission.BLUETOOTH_CONNECT"
+      ],
+      "package": "com.vipulchinmay.AushadX"
     },
     "web": {
       "bundler": "metro",
@@ -53,10 +59,22 @@
           "photosPermission": "Allow $(PRODUCT_NAME) to access your photos"
         }
       ],
-      "react-native-ble-manager"
+      "react-native-ble-manager",
+      "expo-font",
+      "expo-web-browser",
+      "expo-secure-store"
     ],
     "experiments": {
       "typedRoutes": true
+    },
+    "extra": {
+      "router": {
+        "origin": false
+      },
+      "eas": {
+        "projectId": "c93f2948-34ea-4aa0-9fde-926d63593110"
+      },
+      "openaiApiKey": "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"
     }
   }
 }

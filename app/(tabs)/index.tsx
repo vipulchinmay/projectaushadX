@@ -233,7 +233,7 @@ export default function Index() {
         const base64Image = reader.result.split(",")[1];
 
         // Send the selected language along with the image
-        const serverResponse = await fetch("http://192.168.108.195:5000/scan", {
+        const serverResponse = await fetch("http://192.168.1.102:5000/scan", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ 
@@ -266,7 +266,7 @@ export default function Index() {
     }
   };
 
-  // Navigate to AI chat screen
+  //Navigate to AI chat screen
   const openAIChat = () => {
     // Animate button press
     Animated.sequence([
@@ -322,12 +322,12 @@ export default function Index() {
               activeOpacity={0.8}
             >
               <LinearGradient
-                colors={['#4466EE', '#5D5DFD']}
+                colors={['#FF6666', '#5D5DFD']}
                 style={styles.aiButtonGradient}
                 start={{ x: 0, y: 0 }}
                 end={{ x: 1, y: 1 }}
               >
-                <FontAwesome name="comment-medical" size={22} color="white" />
+                <Ionicons name="fitness-outline" size={40}></Ionicons>
               </LinearGradient>
             </TouchableOpacity>
           </Animated.View>
