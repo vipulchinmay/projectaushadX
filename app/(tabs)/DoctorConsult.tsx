@@ -10,6 +10,8 @@ import {
   Linking,
   Dimensions,
   LogBox,
+  Modal,
+  ScrollView,
 } from "react-native";
 import * as Location from "expo-location";
 import MapView, { Marker, PROVIDER_GOOGLE } from "react-native-maps";
@@ -25,12 +27,67 @@ const LONGITUDE_DELTA = LATITUDE_DELTA * ASPECT_RATIO;
 // Replace with your actual API key safely (use environment variables in production)
 const GOOGLE_MAPS_API_KEY = "AIzaSyCEib-Wk5PZyn7pqH0HlCsv3ek8DWGinzg";
 
+// Mock available appointment slots for the next 3 days
+const generateTimeSlots = () => {
+  const slots = [];
+  const today = new Date();
+  
+  // Generate slots for the next 3 days
+  for (let day = 0; day < 3; day++) {
+    const date = new Date(today);
+    date.setDate(today.getDate() + day);
+    const dateStr = date.toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' });
+    
+    // Morning slots
+    for (let hour = 9; hour < 12; hour++) {
+      slots.push({
+        id: `${dateStr}-${hour}:00`,
+        date: dateStr,
+        time: `${hour}:00 AM`,
+        available: Math.random() > 0.3, // 70% chance of availability
+      });
+      slots.push({
+        id: `${dateStr}-${hour}:30`,
+        date: dateStr,
+        time: `${hour}:30 AM`,
+        available: Math.random() > 0.3,
+      });
+    }
+    
+    // Afternoon slots
+    for (let hour = 1; hour < 5; hour++) {
+      slots.push({
+        id: `${dateStr}-${hour}:00PM`,
+        date: dateStr,
+        time: `${hour}:00 PM`,
+        available: Math.random() > 0.3,
+      });
+      slots.push({
+        id: `${dateStr}-${hour}:30PM`,
+        date: dateStr,
+        time: `${hour}:30 PM`,
+        available: Math.random() > 0.3,
+      });
+    }
+  }
+  
+  return slots;
+};
+
 export default function DoctorConsultScreen() {
-  const [location, setLocation] = useState<Location.LocationObject | null>(null);
-  const [hospitals, setHospitals] = useState<any[]>([]);
+  const [location, setLocation] = useState(null);
+  const [hospitals, setHospitals] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [mapRegion, setMapRegion] = useState<any>(null);
-  const [errorMsg, setErrorMsg] = useState<string | null>(null);
+  const [mapRegion, setMapRegion] = useState(null);
+  const [errorMsg, setErrorMsg] = useState(null);
+  
+  // Appointment booking states
+  const [bookingModalVisible, setBookingModalVisible] = useState(false);
+  const [selectedHospital, setSelectedHospital] = useState(null);
+  const [timeSlots, setTimeSlots] = useState([]);
+  const [selectedDate, setSelectedDate] = useState(null);
+  const [appointmentConfirmed, setAppointmentConfirmed] = useState(false);
+  const [selectedTimeSlot, setSelectedTimeSlot] = useState(null);
 
   useEffect(() => {
     fetchHospitals();
@@ -89,7 +146,7 @@ export default function DoctorConsultScreen() {
         console.log(`Found ${data.results.length} hospitals`);
         
         const enrichedHospitals = await Promise.all(
-          data.results.map(async (hospital: any) => {
+          data.results.map(async (hospital) => {
             try {
               const detailsUrl = `https://maps.googleapis.com/maps/api/place/details/json?place_id=${hospital.place_id}&fields=name,vicinity,formatted_phone_number,rating,geometry&key=${GOOGLE_MAPS_API_KEY}`;
               const detailsResponse = await fetch(detailsUrl);
@@ -130,7 +187,7 @@ export default function DoctorConsultScreen() {
     }
   };
 
-  const calculateDistance = (lat1: number, lon1: number, lat2: number, lon2: number) => {
+  const calculateDistance = (lat1, lon1, lat2, lon2) => {
     const R = 6371; // Radius of the Earth in km
     const dLat = ((lat2 - lat1) * Math.PI) / 180;
     const dLon = ((lon2 - lon1) * Math.PI) / 180;
@@ -142,7 +199,7 @@ export default function DoctorConsultScreen() {
     return (R * c).toFixed(2);
   };
 
-  const makeCall = (phoneNumber: string) => {
+  const makeCall = (phoneNumber) => {
     if (!phoneNumber) {
       Alert.alert("No Phone Number", "This hospital doesn't have a phone number listed.");
       return;
@@ -150,7 +207,7 @@ export default function DoctorConsultScreen() {
     Linking.openURL(`tel:${phoneNumber}`);
   };
 
-  const openDirections = (destLat: number, destLng: number) => {
+  const openDirections = (destLat, destLng) => {
     if (!location) {
       Alert.alert("Location Error", "Your current location is not available.");
       return;
@@ -164,6 +221,179 @@ export default function DoctorConsultScreen() {
   // Function to retry location access
   const retryLocationAccess = () => {
     fetchHospitals();
+  };
+
+  // Appointment booking functions
+  const openBookingModal = (hospital) => {
+    setSelectedHospital(hospital);
+    setTimeSlots(generateTimeSlots());
+    setSelectedDate(null);
+    setSelectedTimeSlot(null);
+    setAppointmentConfirmed(false);
+    setBookingModalVisible(true);
+  };
+
+  const closeBookingModal = () => {
+    setBookingModalVisible(false);
+    setSelectedHospital(null);
+    setSelectedDate(null);
+    setSelectedTimeSlot(null);
+    setAppointmentConfirmed(false);
+  };
+
+  const selectDate = (date) => {
+    setSelectedDate(date);
+    setSelectedTimeSlot(null);
+  };
+
+  const bookAppointment = () => {
+    if (!selectedTimeSlot) {
+      Alert.alert("Selection Required", "Please select a time slot for your appointment.");
+      return;
+    }
+
+    // In a real app, this would make an API call to book the appointment
+    console.log("Booking appointment:", {
+      hospital: selectedHospital.name,
+      date: selectedTimeSlot.date,
+      time: selectedTimeSlot.time,
+    });
+
+    // Show confirmation
+    setAppointmentConfirmed(true);
+    
+    // In a real app, you might navigate to a confirmation screen after a delay
+    setTimeout(() => {
+      closeBookingModal();
+      Alert.alert(
+        "Appointment Confirmed",
+        `Your appointment at ${selectedHospital.name} on ${selectedTimeSlot.date} at ${selectedTimeSlot.time} has been booked.`
+      );
+    }, 2000);
+  };
+
+  // Get unique dates from time slots
+  const getUniqueDates = () => {
+    const dates = [...new Set(timeSlots.map(slot => slot.date))];
+    return dates;
+  };
+
+  // Filter time slots by selected date
+  const getTimeSlotsForDate = () => {
+    if (!selectedDate) return [];
+    return timeSlots.filter(slot => slot.date === selectedDate);
+  };
+
+  // Appointment Booking Modal
+  const renderBookingModal = () => {
+    const uniqueDates = getUniqueDates();
+    const filteredTimeSlots = getTimeSlotsForDate();
+    
+    return (
+      <Modal
+        animationType="slide"
+        transparent={true}
+        visible={bookingModalVisible}
+        onRequestClose={closeBookingModal}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContent}>
+            {appointmentConfirmed ? (
+              <View style={styles.confirmationContainer}>
+                <Text style={styles.confirmationTitle}>Appointment Confirmed!</Text>
+                <Text style={styles.confirmationText}>
+                  Your appointment at {selectedHospital?.name} has been scheduled for{" "}
+                  {selectedTimeSlot?.date} at {selectedTimeSlot?.time}.
+                </Text>
+                <ActivityIndicator size="large" color="#4CAF50" style={styles.confirmationSpinner} />
+              </View>
+            ) : (
+              <>
+                <View style={styles.modalHeader}>
+                  <Text style={styles.modalTitle}>Book Appointment</Text>
+                  <TouchableOpacity onPress={closeBookingModal} style={styles.closeButton}>
+                    <Text style={styles.closeButtonText}>✕</Text>
+                  </TouchableOpacity>
+                </View>
+                
+                <Text style={styles.hospitalTitle}>{selectedHospital?.name}</Text>
+                <Text style={styles.hospitalAddress}>{selectedHospital?.vicinity}</Text>
+                
+                <ScrollView style={styles.modalScrollView}>
+                  {/* Date Selection */}
+                  <Text style={styles.sectionTitle}>Select Date:</Text>
+                  <View style={styles.dateContainer}>
+                    {uniqueDates.map((date) => (
+                      <TouchableOpacity
+                        key={date}
+                        style={[
+                          styles.dateButton,
+                          selectedDate === date && styles.selectedDateButton,
+                        ]}
+                        onPress={() => selectDate(date)}
+                      >
+                        <Text
+                          style={[
+                            styles.dateButtonText,
+                            selectedDate === date && styles.selectedDateButtonText,
+                          ]}
+                        >
+                          {date}
+                        </Text>
+                      </TouchableOpacity>
+                    ))}
+                  </View>
+                  
+                  {/* Time Slots Selection */}
+                  {selectedDate ? (
+                    <>
+                      <Text style={styles.sectionTitle}>Select Time:</Text>
+                      <View style={styles.timeSlotContainer}>
+                        {filteredTimeSlots.map((slot) => (
+                          <TouchableOpacity
+                            key={slot.id}
+                            style={[
+                              styles.timeSlotButton,
+                              !slot.available && styles.unavailableTimeSlot,
+                              selectedTimeSlot?.id === slot.id && styles.selectedTimeSlot,
+                            ]}
+                            onPress={() => slot.available && setSelectedTimeSlot(slot)}
+                            disabled={!slot.available}
+                          >
+                            <Text
+                              style={[
+                                styles.timeSlotText,
+                                !slot.available && styles.unavailableTimeSlotText,
+                                selectedTimeSlot?.id === slot.id && styles.selectedTimeSlotText,
+                              ]}
+                            >
+                              {slot.time}
+                            </Text>
+                          </TouchableOpacity>
+                        ))}
+                      </View>
+                    </>
+                  ) : (
+                    <Text style={styles.instructionText}>Please select a date first</Text>
+                  )}
+                </ScrollView>
+                
+                <TouchableOpacity
+                  style={[
+                    styles.bookButton,
+                    !selectedTimeSlot && styles.disabledButton,
+                  ]}
+                  onPress={bookAppointment}
+                  disabled={!selectedTimeSlot}
+                >
+                  <Text style={styles.bookButtonText}>Confirm Appointment</Text>
+                </TouchableOpacity>
+              </>
+            )}
+          </View>
+        </View>
+      </Modal>
+    );
   };
 
   return (
@@ -248,6 +478,7 @@ export default function DoctorConsultScreen() {
                       >
                         <Text style={styles.buttonText}>Call</Text>
                       </TouchableOpacity>
+                      
                       <TouchableOpacity
                         style={styles.directionButton}
                         onPress={() => openDirections(
@@ -256,6 +487,13 @@ export default function DoctorConsultScreen() {
                         )}
                       >
                         <Text style={styles.buttonText}>Directions</Text>
+                      </TouchableOpacity>
+                      
+                      <TouchableOpacity
+                        style={styles.appointmentButton}
+                        onPress={() => openBookingModal(item)}
+                      >
+                        <Text style={styles.buttonText}>Book</Text>
                       </TouchableOpacity>
                     </View>
                   </View>
@@ -271,6 +509,8 @@ export default function DoctorConsultScreen() {
               }
             />
           </View>
+          
+          {renderBookingModal()}
         </>
       )}
     </View>
@@ -368,7 +608,16 @@ const styles = StyleSheet.create({
   },
   directionButton: {
     flex: 1,
+    marginRight: 5,
     backgroundColor: "#2196F3",
+    paddingVertical: 10,
+    borderRadius: 10,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  appointmentButton: {
+    flex: 1,
+    backgroundColor: "#9C27B0",
     paddingVertical: 10,
     borderRadius: 10,
     alignItems: "center",
@@ -388,5 +637,163 @@ const styles = StyleSheet.create({
     fontSize: 16,
     textAlign: "center",
     marginBottom: 20,
+  },
+  
+  // Modal Styles
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: "rgba(0, 0, 0, 0.7)",
+    justifyContent: "center",
+    alignItems: "center",
+    padding: 20,
+  },
+  modalContent: {
+    backgroundColor: "#333",
+    borderRadius: 15,
+    width: "100%",
+    maxHeight: height * 0.8,
+    padding: 20,
+  },
+  modalHeader: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: 15,
+  },
+  modalTitle: {
+    color: "#fff",
+    fontSize: 22,
+    fontWeight: "bold",
+  },
+  closeButton: {
+    padding: 5,
+  },
+  closeButtonText: {
+    color: "#fff",
+    fontSize: 24,
+    fontWeight: "bold",
+  },
+  hospitalTitle: {
+    color: "#fff",
+    fontSize: 18,
+    fontWeight: "bold",
+    marginBottom: 5,
+  },
+  hospitalAddress: {
+    color: "#ccc",
+    fontSize: 16,
+    marginBottom: 20,
+  },
+  modalScrollView: {
+    marginBottom: 20,
+  },
+  sectionTitle: {
+    color: "#fff",
+    fontSize: 18,
+    fontWeight: "bold",
+    marginBottom: 10,
+    marginTop: 10,
+  },
+  dateContainer: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    marginBottom: 20,
+  },
+  dateButton: {
+    backgroundColor: "#444",
+    paddingVertical: 10,
+    paddingHorizontal: 15,
+    borderRadius: 10,
+    marginRight: 10,
+    marginBottom: 10,
+  },
+  selectedDateButton: {
+    backgroundColor: "#2196F3",
+  },
+  dateButtonText: {
+    color: "#fff",
+    fontSize: 14,
+  },
+  selectedDateButtonText: {
+    fontWeight: "bold",
+  },
+  timeSlotContainer: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    marginBottom: 10,
+  },
+  timeSlotButton: {
+    backgroundColor: "#444",
+    paddingVertical: 12,
+    paddingHorizontal: 15,
+    borderRadius: 10,
+    marginRight: 10,
+    marginBottom: 10,
+    width: "30%",
+    alignItems: "center",
+  },
+  unavailableTimeSlot: {
+    backgroundColor: "#555",
+    opacity: 0.5,
+  },
+  selectedTimeSlot: {
+    backgroundColor: "#4CAF50",
+  },
+  timeSlotText: {
+    color: "#fff",
+    fontSize: 14,
+  },
+  unavailableTimeSlotText: {
+    color: "#999",
+  },
+  selectedTimeSlotText: {
+    fontWeight: "bold",
+  },
+  instructionText: {
+    color: "#ccc",
+    fontSize: 16,
+    textAlign: "center",
+    marginTop: 20,
+    marginBottom: 20,
+  },
+  bookButton: {
+    backgroundColor: "#4CAF50",
+    paddingVertical: 15,
+    borderRadius: 10,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  disabledButton: {
+    backgroundColor: "#555",
+    opacity: 0.7,
+  },
+  bookButtonText: {
+    color: "#fff",
+    fontSize: 18,
+    fontWeight: "bold",
+  },
+  
+  // Confirmation styles
+  confirmationContainer: {
+    alignItems: "center",
+    justifyContent: "center",
+    padding: 20,
+  },
+  confirmationTitle: {
+    color: "#4CAF50",
+    fontSize: 24,
+    fontWeight: "bold",
+    marginBottom: 15,
+    textAlign: "center",
+  },
+  confirmationText: {
+    color: "#fff",
+    fontSize: 16,
+    textAlign: "center",
+    marginBottom: 20,
+  },
+  confirmationSpinner: {
+    marginTop: 20,
+    marginBottom: 10,
   },
 });
