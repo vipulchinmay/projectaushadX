@@ -322,7 +322,7 @@ export default function Index() {
               activeOpacity={0.8}
             >
               <LinearGradient
-                colors={['#FF6666', '#5D5DFD']}
+                colors={['#f84040', '#5D5DFD']}
                 style={styles.aiButtonGradient}
                 start={{ x: 0, y: 0 }}
                 end={{ x: 1, y: 1 }}

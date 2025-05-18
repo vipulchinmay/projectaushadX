@@ -97,7 +97,88 @@ const AIChat = () => {
           response = "Regular physical activity is essential for good health. Adults should aim for at least 150 minutes of moderate-intensity exercise per week. Before starting any new exercise routine, especially if you have pre-existing health conditions, it's advisable to consult with a healthcare provider.";
         } else if (lowerCaseMessage.includes('diet') || lowerCaseMessage.includes('nutrition')) {
           response = "A balanced diet rich in fruits, vegetables, whole grains, lean proteins, and healthy fats supports overall health. Individualized dietary needs may vary based on factors like age, gender, activity level, and health conditions. For personalized nutrition advice, consider consulting with a registered dietitian.";
-        } else {
+        }else if (lowerCaseMessage.includes('metabolism')) {
+          response = "To boost metabolism naturally, consider increasing physical activity, building muscle through strength training, staying hydrated, getting enough sleep, and eating small, frequent meals that include protein.";
+        } else if (lowerCaseMessage.includes('thyroid')) {
+          response = "Thyroid issues can affect energy levels, weight, and mood. Symptoms may include fatigue, weight changes, and temperature sensitivity. If you suspect a thyroid problem, consult a healthcare provider for a blood test and diagnosis.";
+        } else if (lowerCaseMessage.includes('energy')) {
+          response = "Natural ways to boost energy include regular physical activity, proper sleep, a balanced diet, and staying hydrated. Avoid excessive caffeine and focus on managing stress.";
+        } else if (lowerCaseMessage.includes('belly fat')) {
+          response = "Losing belly fat involves a combination of a healthy diet, regular cardio and strength exercises, stress reduction, and adequate sleep. There’s no quick fix, but consistent lifestyle changes help.";
+        } else if (lowerCaseMessage.includes('weight')) {
+          response = "Maintaining a healthy weight requires a balance between calorie intake and physical activity. Eating a nutritious diet and staying active are key. Consult with a healthcare professional for personalized advice.";
+        } else if (lowerCaseMessage.includes('sugar')) {
+          response = "Too much sugar can lead to weight gain, diabetes, and heart disease. Reducing intake of sugary drinks and processed foods can significantly improve overall health.";
+        } else if (lowerCaseMessage.includes('inflammation')) {
+          response = "To reduce inflammation, focus on an anti-inflammatory diet rich in fruits, vegetables, whole grains, and omega-3 fats. Avoid processed foods and manage stress effectively.";
+        } else if (lowerCaseMessage.includes('yoga')) {
+          response = "Yoga offers many health benefits, including improved flexibility, stress reduction, better breathing, and mental clarity. It can also aid in managing chronic pain and improving sleep.";
+        } else if (lowerCaseMessage.includes('depression')) {
+          response = "Symptoms of depression include persistent sadness, loss of interest in activities, fatigue, and changes in appetite or sleep. If you or someone you know is struggling, reach out to a mental health professional.";
+        } else if (lowerCaseMessage.includes('bloating')) {
+          response = "Bloating may be caused by overeating, gas, or food intolerances. Staying hydrated, eating slowly, and avoiding trigger foods can help relieve bloating. If it persists, consult a doctor.";
+        }else if (lowerCaseMessage.includes('food allergies')) {
+          response = "Food allergies can cause symptoms like hives, swelling, digestive issues, or even severe reactions. If you suspect a food allergy, see an allergist for testing and advice on managing your diet.";
+        } else if (lowerCaseMessage.includes('build muscle')) {
+          response = "Building muscle naturally involves consistent strength training, adequate protein intake, proper rest, and balanced nutrition. Avoid overtraining and consider consulting a fitness professional.";
+        } else if (lowerCaseMessage.includes('floss') || lowerCaseMessage.includes('brush teeth')) {
+          response = "Good dental hygiene involves brushing twice daily, flossing once daily, and regular dental checkups. This helps prevent cavities, gum disease, and bad breath.";
+        } else if (lowerCaseMessage.includes('lemon water')) {
+          response = "Drinking lemon water may support hydration and provide a small amount of vitamin C. However, it should complement, not replace, a balanced diet.";
+        } else if (lowerCaseMessage.includes('cholesterol')) {
+          response = "High cholesterol can increase heart disease risk. A healthy diet, regular exercise, and sometimes medication can help manage cholesterol levels. Consult your doctor for testing and guidance.";
+        } else if (lowerCaseMessage.includes('detox')) {
+          response = "The body naturally detoxifies through the liver and kidneys. Supporting these organs with hydration, a balanced diet, and avoiding toxins is the safest approach. Be cautious with commercial detox products.";
+        } else if (lowerCaseMessage.includes('fiber')) {
+          response = "Dietary fiber is important for digestion, blood sugar control, and heart health. Include whole grains, fruits, vegetables, and legumes in your diet for sufficient fiber.";
+        } else if (lowerCaseMessage.includes('high blood pressure') || lowerCaseMessage.includes('hypertension')) {
+          response = "High blood pressure can be managed with lifestyle changes like reducing salt intake, exercising, managing stress, and following medical advice if needed.";
+        } else if (lowerCaseMessage.includes('sleep') && lowerCaseMessage.includes('weight gain')) {
+          response = "Lack of sleep can disrupt hormones related to hunger and metabolism, potentially leading to weight gain. Prioritizing good sleep hygiene supports overall health.";
+        } else if (lowerCaseMessage.includes('green tea')) {
+          response = "Green tea contains antioxidants that may support metabolism and heart health. Drinking it in moderation can be part of a healthy lifestyle.";
+        }else if (lowerCaseMessage.includes('muscle cramps')) {
+          response = "Muscle cramps are often caused by dehydration, electrolyte imbalances, or overuse. Staying hydrated, stretching, and ensuring adequate intake of minerals like potassium and magnesium can help prevent cramps.";
+        } else if (lowerCaseMessage.includes('eye strain')) {
+          response = "To reduce eye strain, follow the 20-20-20 rule: every 20 minutes, look at something 20 feet away for 20 seconds. Adjust screen brightness and ensure proper lighting.";
+        } else if (lowerCaseMessage.includes('arthritis')) {
+          response = "Arthritis symptoms include joint pain and stiffness. Managing arthritis often involves physical therapy, medication, and lifestyle changes like regular low-impact exercise.";
+        } else if (lowerCaseMessage.includes('dehydration')) {
+          response = "Dehydration can cause headaches, dizziness, and fatigue. Drinking adequate fluids, especially water, throughout the day is essential to stay hydrated.";
+        } else if (lowerCaseMessage.includes('heart health')) {
+          response = "Maintaining heart health involves a balanced diet, regular exercise, managing stress, avoiding smoking, and regular medical checkups.";
+        } else if (lowerCaseMessage.includes('gut health')) {
+          response = "Good gut health is supported by a fiber-rich diet, probiotics, hydration, and avoiding excessive processed foods and antibiotics unless necessary.";
+        } else if (lowerCaseMessage.includes('stress management')) {
+          response = "Effective stress management techniques include mindfulness, exercise, adequate sleep, social support, and time management.";
+        } else if (lowerCaseMessage.includes('immune system')) {
+          response = "Boost your immune system by eating a balanced diet, staying active, getting enough sleep, and managing stress.";
+        } else if (lowerCaseMessage.includes('digestion')) {
+          response = "Healthy digestion depends on a fiber-rich diet, adequate hydration, regular physical activity, and mindful eating habits.";
+        } else if (lowerCaseMessage.includes('bone health')) {
+          response = "To support bone health, consume adequate calcium and vitamin D, engage in weight-bearing exercises, and avoid smoking and excessive alcohol.";
+        }else if (lowerCaseMessage.includes('paracetamol')) {
+          response = "Paracetamol is commonly used to relieve pain and reduce fever. Always follow the recommended dosage and avoid exceeding the maximum daily limit to prevent liver damage.";
+        } else if (lowerCaseMessage.includes('ibuprofen')) {
+          response = "Ibuprofen is a nonsteroidal anti-inflammatory drug (NSAID) used to reduce pain, fever, and inflammation. Take it with food to minimize stomach upset and consult a doctor if you have ulcers or kidney issues.";
+        } else if (lowerCaseMessage.includes('xanax') || lowerCaseMessage.includes('alprazolam')) {
+          response = "Xanax (alprazolam) is prescribed for anxiety and panic disorders. It should be used only under medical supervision due to risk of dependence and side effects. Avoid alcohol while taking this medication.";
+        } else if (lowerCaseMessage.includes('antibiotics')) {
+          response = "Antibiotics fight bacterial infections. It's important to complete the full prescribed course even if you feel better. Do not use antibiotics for viral infections like colds or flu.";
+        } else if (lowerCaseMessage.includes('antihistamines')) {
+          response = "Antihistamines help relieve allergy symptoms such as sneezing, itching, and runny nose. Some may cause drowsiness; check labels and avoid driving if affected.";
+        } else if (lowerCaseMessage.includes('insulin')) {
+          response = "Insulin is essential for managing blood sugar in people with diabetes. Proper storage and dosage are crucial. Always follow your healthcare provider's instructions.";
+        } else if (lowerCaseMessage.includes('vaccines')) {
+          response = "Vaccines protect against infectious diseases by boosting immunity. Stay up to date with recommended vaccines and consult your healthcare provider about any concerns.";
+        } else if (lowerCaseMessage.includes('antidepressants')) {
+          response = "Antidepressants help manage depression and anxiety disorders. They may take several weeks to work and should only be stopped under medical guidance.";
+        } else if (lowerCaseMessage.includes('painkillers')) {
+          response = "Painkillers relieve various types of pain. Use as directed and be cautious of potential side effects or interactions with other medications.";
+        } else if (lowerCaseMessage.includes('steroids')) {
+          response = "Steroids reduce inflammation and suppress immune responses. They must be used as prescribed due to potential side effects, including weight gain and mood changes.";
+        }                
+        else {
           response = "Thank you for your medical question. As a medical assistant, I can provide general information, but please consult with a healthcare professional for personalized medical advice. Is there anything specific about this topic you'd like to know?";
         }
       } else {
