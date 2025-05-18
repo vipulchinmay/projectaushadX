@@ -16,16 +16,16 @@ import LottieView from 'lottie-react-native';
 const { width, height } = Dimensions.get('window');
 
 export default function Index() {
-  const [selectedImage, setSelectedImage] = useState<string | null>(null);
+  const [selectedImage, setSelectedImage] = useState(null);
   const [loading, setLoading] = useState(false);
-  const [abortController, setAbortController] = useState<AbortController | null>(null);
+  const [abortController, setAbortController] = useState(null);
   const router = useRouter();
   const navigation = useNavigation();
   const { language } = useLanguage();
   const lottieRef = useRef(null);
 
   // Translation helper function
-  const t = (key: string) => translations[language]?.[key] || key;
+  const t = (key) => translations[language]?.[key] || key;
 
   // Enhanced animations
   const fadeAnim = useRef(new Animated.Value(0)).current;
@@ -36,6 +36,8 @@ export default function Index() {
   const imageSlideUp = useRef(new Animated.Value(50)).current;
   const imageScale = useRef(new Animated.Value(0.95)).current;
   const aiButtonAnim = useRef(new Animated.Value(0)).current;
+  const pulseAnim = useRef(new Animated.Value(1)).current;
+  const backgroundAnimValues = useRef(Array(6).fill(0).map(() => new Animated.Value(0))).current;
 
   // Start rotation animation for loading spinner
   useEffect(() => {
@@ -43,7 +45,7 @@ export default function Index() {
       Animated.loop(
         Animated.timing(loadingRotation, {
           toValue: 1,
-          duration: 1500,
+          duration: 1200,
           easing: Easing.linear,
           useNativeDriver: true
         })
@@ -59,6 +61,32 @@ export default function Index() {
       }
     }
   }, [loading]);
+
+  // Background animation
+  useEffect(() => {
+    const animations = backgroundAnimValues.map((value, index) => {
+      return Animated.loop(
+        Animated.sequence([
+          Animated.timing(value, {
+            toValue: 1,
+            duration: 3000 + (index * 500),
+            easing: Easing.inOut(Easing.sine),
+            useNativeDriver: true,
+          }),
+          Animated.timing(value, {
+            toValue: 0,
+            duration: 3000 + (index * 500),
+            easing: Easing.inOut(Easing.sine),
+            useNativeDriver: true,
+          })
+        ])
+      );
+    });
+    
+    Animated.stagger(400, animations).start();
+    
+    return () => animations.forEach(anim => anim.stop());
+  }, []);
 
   // Enhanced welcome animation with sequence
   useEffect(() => {
@@ -99,37 +127,67 @@ export default function Index() {
       Animated.parallel([
         Animated.timing(fadeAnim, {
           toValue: 1,
-          duration: 600,
+          duration: 700,
           easing: Easing.out(Easing.cubic),
           useNativeDriver: true,
         }),
         Animated.timing(imageSlideUp, {
           toValue: 0,
-          duration: 500,
-          easing: Easing.out(Easing.quad),
+          duration: 600,
+          easing: Easing.out(Easing.back),
           useNativeDriver: true,
         }),
         Animated.timing(imageScale, {
           toValue: 1,
-          duration: 500,
-          easing: Easing.out(Easing.back(1.5)),
+          duration: 600,
+          easing: Easing.out(Easing.back),
           useNativeDriver: true,
         })
       ]).start();
+      
+      // Start pulse animation for analyze button
+      startPulseAnimation();
+    } else {
+      // Reset animations when image is cleared
+      fadeAnim.setValue(0);
+      imageSlideUp.setValue(50);
+      imageScale.setValue(0.95);
     }
   }, [selectedImage]);
+
+  // Pulse animation for analyze button
+  const startPulseAnimation = () => {
+    if (selectedImage && !loading) {
+      Animated.loop(
+        Animated.sequence([
+          Animated.timing(pulseAnim, {
+            toValue: 1.05,
+            duration: 800,
+            easing: Easing.inOut(Easing.ease),
+            useNativeDriver: true
+          }),
+          Animated.timing(pulseAnim, {
+            toValue: 1,
+            duration: 800,
+            easing: Easing.inOut(Easing.ease),
+            useNativeDriver: true
+          })
+        ])
+      ).start();
+    }
+  };
 
   // Enhanced button press animations
   const animateButtonPressIn = () => {
     Animated.parallel([
       Animated.spring(buttonScale, {
-        toValue: 0.96,
-        friction: 5,
-        tension: 100,
+        toValue: 0.92,
+        friction: 4,
+        tension: 120,
         useNativeDriver: true,
       }),
       Animated.timing(buttonOpacity, {
-        toValue: 0.9,
+        toValue: 0.85,
         duration: 100,
         useNativeDriver: true,
       })
@@ -140,13 +198,13 @@ export default function Index() {
     Animated.parallel([
       Animated.spring(buttonScale, {
         toValue: 1,
-        friction: 4,
-        tension: 100,
+        friction: 3,
+        tension: 80,
         useNativeDriver: true,
       }),
       Animated.timing(buttonOpacity, {
         toValue: 1,
-        duration: 100,
+        duration: 150,
         useNativeDriver: true,
       })
     ]).start();
@@ -292,6 +350,32 @@ export default function Index() {
     outputRange: ['0deg', '360deg']
   });
 
+  // Background animation component
+  const AnimatedBackground = () => {
+    return (
+      <View style={styles.backgroundAnimationContainer}>
+        {backgroundAnimValues.map((value, index) => (
+          <Animated.View
+            key={index}
+            style={[
+              styles.backgroundBubble,
+              {
+                transform: [
+                  { scale: value.interpolate({ inputRange: [0, 1], outputRange: [0.8, 1.2] }) },
+                  { translateX: value.interpolate({ inputRange: [0, 1], outputRange: [0, index % 2 === 0 ? 30 : -30] }) },
+                  { translateY: value.interpolate({ inputRange: [0, 1], outputRange: [0, -40] }) }
+                ],
+                opacity: value.interpolate({ inputRange: [0, 0.5, 1], outputRange: [0.1, 0.3, 0.1] }),
+                backgroundColor: index % 3 === 0 ? '#5D5DFD' : index % 3 === 1 ? '#f84040' : '#34C759',
+                left: `${15 + (index * 15)}%`,
+              }
+            ]}
+          />
+        ))}
+      </View>
+    );
+  };
+
   return (
     <SafeAreaView style={styles.safeArea}>
       <StatusBar barStyle="light-content" />
@@ -299,6 +383,7 @@ export default function Index() {
         colors={['#121212', '#1E1E1E', '#252525']}
         style={styles.gradientBackground}
       >
+        <AnimatedBackground />
         <View style={styles.container}>
           {/* AI Chat Button */}
           <Animated.View 
@@ -320,6 +405,8 @@ export default function Index() {
               style={styles.aiButton}
               onPress={openAIChat}
               activeOpacity={0.8}
+              onPressIn={animateButtonPressIn}
+              onPressOut={animateButtonPressOut}
             >
               <LinearGradient
                 colors={['#f84040', '#5D5DFD']}
@@ -327,7 +414,7 @@ export default function Index() {
                 start={{ x: 0, y: 0 }}
                 end={{ x: 1, y: 1 }}
               >
-                <Ionicons name="fitness-outline" size={40}></Ionicons>
+                <Ionicons name="fitness-outline" size={40} color="white" />
               </LinearGradient>
             </TouchableOpacity>
           </Animated.View>
@@ -406,10 +493,18 @@ export default function Index() {
                     style={styles.mainActionButton}
                     onPress={takePhoto}
                     activeOpacity={0.9}
+                    onPressIn={animateButtonPressIn}
+                    onPressOut={animateButtonPressOut}
                   >
-                    <View style={styles.buttonIconContainer}>
+                    <Animated.View style={[
+                      styles.buttonIconContainer,
+                      {
+                        transform: [{ scale: buttonScale }],
+                        backgroundColor: 'rgba(0, 122, 255, 0.2)'
+                      }
+                    ]}>
                       <Ionicons name="camera" size={28} color="#ffffff" />
-                    </View>
+                    </Animated.View>
                     <Text style={styles.mainActionButtonText}>{t("Take Photo")}</Text>
                   </TouchableOpacity>
                   
@@ -419,10 +514,18 @@ export default function Index() {
                     style={styles.mainActionButton}
                     onPress={pickImage}
                     activeOpacity={0.9}
+                    onPressIn={animateButtonPressIn}
+                    onPressOut={animateButtonPressOut}
                   >
-                    <View style={styles.buttonIconContainer}>
+                    <Animated.View style={[
+                      styles.buttonIconContainer,
+                      {
+                        transform: [{ scale: buttonScale }],
+                        backgroundColor: 'rgba(88, 86, 214, 0.2)'
+                      }
+                    ]}>
                       <Ionicons name="images" size={28} color="#ffffff" />
-                    </View>
+                    </Animated.View>
                     <Text style={styles.mainActionButtonText}>{t("Gallery")}</Text>
                   </TouchableOpacity>
                 </View>
@@ -462,9 +565,32 @@ export default function Index() {
                         onPress={scanImage}
                         disabled={loading}
                         activeOpacity={0.85}
+                        onPressIn={() => {
+                          Animated.spring(pulseAnim, {
+                            toValue: 0.95,
+                            friction: 5,
+                            tension: 100,
+                            useNativeDriver: true
+                          }).start();
+                        }}
+                        onPressOut={() => {
+                          Animated.spring(pulseAnim, {
+                            toValue: 1,
+                            friction: 3,
+                            tension: 40,
+                            useNativeDriver: true
+                          }).start();
+                        }}
                       >
-                        <MaterialCommunityIcons name="text-recognition" size={24} color="white" />
-                        <Text style={styles.analyzeButtonTextEnhanced}>{t("Analyze Medicine")}</Text>
+                        <Animated.View style={{
+                          flexDirection: "row",
+                          alignItems: "center",
+                          justifyContent: "center",
+                          transform: [{ scale: pulseAnim }]
+                        }}>
+                          <MaterialCommunityIcons name="text-recognition" size={24} color="white" />
+                          <Text style={styles.analyzeButtonTextEnhanced}>{t("Analyze Medicine")}</Text>
+                        </Animated.View>
                       </TouchableOpacity>
                       
                       <View style={styles.secondaryActionsRow}>
@@ -472,6 +598,8 @@ export default function Index() {
                           style={styles.secondaryButton}
                           onPress={takePhoto}
                           disabled={loading}
+                          onPressIn={animateButtonPressIn}
+                          onPressOut={animateButtonPressOut}
                         >
                           <Ionicons name="camera-outline" size={20} color="#ffffff" />
                           <Text style={styles.secondaryButtonText}>{t("Retake")}</Text>
@@ -481,6 +609,8 @@ export default function Index() {
                           style={styles.secondaryButton}
                           onPress={pickImage}
                           disabled={loading}
+                          onPressIn={animateButtonPressIn}
+                          onPressOut={animateButtonPressOut}
                         >
                           <Ionicons name="images-outline" size={20} color="#ffffff" />
                           <Text style={styles.secondaryButtonText}>{t("Gallery")}</Text>
@@ -513,6 +643,20 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight : 0,
     paddingBottom: 0,
+  },
+  // Background animation styles
+  backgroundAnimationContainer: {
+    position: 'absolute',
+    width: '100%',
+    height: '100%',
+    overflow: 'hidden',
+  },
+  backgroundBubble: {
+    position: 'absolute',
+    width: 150,
+    height: 150,
+    borderRadius: 75,
+    bottom: -50,
   },
   // New AI button styles
   aiButtonContainer: {
@@ -711,11 +855,13 @@ const styles = StyleSheet.create({
     shadowRadius: 8,
     elevation: 5,
     marginBottom: 16,
+    overflow: 'hidden',
   },
   analyzeButtonTextEnhanced: {
     color: "#ffffff",
     fontWeight: "bold",
     fontSize: 18,
+    marginLeft: 8,
   },
   secondaryActionsRow: {
     flexDirection: 'row',
@@ -738,6 +884,18 @@ const styles = StyleSheet.create({
     color: "#ffffff",
     fontWeight: "500",
     fontSize: 15,
+  },
+  
+  // Button ripple effect
+  buttonRipple: {
+    position: 'absolute',
+    borderRadius: 32,
+    backgroundColor: 'rgba(255, 255, 255, 0.2)',
+  },
+  analyzeButtonWrapper: {
+    overflow: 'hidden',
+    borderRadius: 16,
+    width: '100%',
   },
   
   // Legacy styles for compatibility
