@@ -1,0 +1,13 @@
+Flask==2.3.3
+Flask-CORS==4.0.0
+pymongo==4.5.0
+gridfs==0.0.1
+opencv-python==4.8.1.78
+Pillow==10.0.1
+pytesseract==0.3.10
+PyPDF2==3.0.1
+requests==2.31.0
+Werkzeug==2.3.7
+python-multipart==0.0.6
+bson==0.5.10
+numpy==1.24.3
