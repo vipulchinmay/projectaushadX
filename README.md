@@ -215,8 +215,8 @@ Expo CLI >= 6.0.0
 #### 🔧 **Frontend Setup**
 ```bash
 # 1️⃣ Clone the repository
-git clone https://github.com/your-repo/AushadX.git
-cd AushadX
+git clone https://github.com/vipulchinmay/projectaushadX.git
+cd projectaushadX
 
 # 2️⃣ Install dependencies
 npm install
@@ -434,12 +434,12 @@ Update `app.json` with your specific settings:
 
 <div align="center">
 
-| 👤 **Team Member** | 🔗 **GitHub** | 🎯 **Role** | 💼 **Contribution** |
-|-------------------|---------------|-------------|-------------------|
-| **Vipul Chinmay** | [@vipulchinmay](https://github.com/vipulchinmay) | 🚀 **Creator & Lead** | Architecture, AI Integration |
-| **Shailesh Pentuker** | [@spentuker](https://github.com/spentuker) | 🎨 **Frontend Lead** | UI/UX, React Native |
-| **Srujana Goje** | [@Srujana1008](https://github.com/Srujana1008) | 🔧 **Backend Lead** | Python, API Development |
-| **Vamshi Aelugoi** | [@vamshi0129](https://github.com/vamshi0129) | 📱 **Mobile Dev** | Native Features, Testing |
+| 👤 **Team Member** | 🔗 **GitHub** | 🎯 **Role** |
+|-------------------|---------------|-------------|
+| **Vipul Chinmay** | [@vipulchinmay](https://github.com/vipulchinmay) | 🚀 **Creator & Maintainer** | 
+| **Shailesh Pentuker** | [@spentuker](https://github.com/spentuker) | 🎨 **Creator & Collaborator** | 
+| **Srujana Goje** | [@Srujana1008](https://github.com/Srujana1008) | 🔧 **Creator & Collaborator** | 
+| **Vamshi Aelugoi** | [@vamshi0129](https://github.com/vamshi0129) | 📱 **Creator & Collaborator** | 
 
 </div>
 
