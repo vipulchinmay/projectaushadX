@@ -430,18 +430,54 @@ Update `app.json` with your specific settings:
 
 ---
 
-## 👥 Our Amazing Team
+## 👥 Our Brilliant Team
 
 <div align="center">
 
-| 👤 **Team Member** | 🔗 **GitHub** | 🎯 **Role** |
-|-------------------|---------------|-------------|
-| **Vipul Chinmay** | [@vipulchinmay](https://github.com/vipulchinmay) | 🚀 **Creator & Maintainer** | 
-| **Shailesh Pentuker** | [@spentuker](https://github.com/spentuker) | 🎨 **Creator & Collaborator** | 
-| **Srujana Goje** | [@Srujana1008](https://github.com/Srujana1008) | 🔧 **Creator & Collaborator** | 
-| **Vamshi Aelugoi** | [@vamshi0129](https://github.com/vamshi0129) | 📱 **Creator & Collaborator** | 
+### 🌟 **Meet the Innovators Behind Seekhan**
 
 </div>
+
+<table align="center">
+<tr>
+<td align="center" width="25%">
+<img src="https://via.placeholder.com/150x150/FF6B6B/FFFFFF?text=👤" width="100" height="100" style="border-radius: 50%;"/>
+<br />
+<strong>🚀 Project Lead</strong>
+<br />
+<a href="https://github.com/vipulchinmay">@vipulchinmay</a>
+<br />
+<em>AI Architecture & Strategy</em>
+</td>
+<td align="center" width="25%">
+<img src="https://via.placeholder.com/150x150/4ECDC4/FFFFFF?text=👤" width="100" height="100" style="border-radius: 50%;"/>
+<br />
+<strong>🤖 AI Engineer</strong>
+<br />
+<a href="https://github.com/spentuker">@spentuker</a>
+<br />
+<em>Model Development & Training</em>
+</td>
+<td align="center" width="25%">
+<img src="https://via.placeholder.com/150x150/45B7D1/FFFFFF?text=👤" width="100" height="100" style="border-radius: 50%;"/>
+<br />
+<strong>🎨 Frontend Developer</strong>
+<br />
+<a href="https://github.com/Srujana1008">@Srujana1008</a>
+<br />
+<em>Data & Image processing</em>
+</td>
+<td align="center" width="25%">
+<img src="https://via.placeholder.com/150x150/F7DC6F/FFFFFF?text=👤" width="100" height="100" style="border-radius: 50%;"/>
+<br />
+<strong>🔧 Backend Developer</strong>
+<br />
+<a href="https://github.com/vamshi0129">@vamshi0129</a>
+<br />
+<em>PyTessaract Developer</em>
+</td>
+</tr>
+</table>
 
 ---
 
@@ -497,18 +533,6 @@ Ready to code? Let's build together!
 3. **💾 Commit** your changes (`git commit -m 'Add some AmazingFeature'`)
 4. **📤 Push** to the branch (`git push origin feature/AmazingFeature`)
 5. **🔄 Open** a Pull Request
-
----
-
-## 📄 License
-
-<div align="center">
-
-This project is licensed under the **MIT License** - see the [LICENSE](LICENSE) file for details.
-
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg?style=for-the-badge)](https://opensource.org/licenses/MIT)
-
-</div>
 
 ---
 
