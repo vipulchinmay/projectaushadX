@@ -2,7 +2,7 @@
 
 <div align="center">
 
-![AushadX Logo](https://via.placeholder.com/200x100/4CAF50/FFFFFF?text=AushadX)
+![AushadX Logo](assets/images/aushad_start_loading.gif)
 
 ### 🚀 Your Medicine, Your Health, Your Hands
 
@@ -474,7 +474,7 @@ Update `app.json` with your specific settings:
 <br />
 <a href="https://github.com/vamshi0129">@vamshi0129</a>
 <br />
-<em>PyTessaract Developer</em>
+<em>PyTessaract and rasp-pi Developer</em>
 </td>
 </tr>
 </table>
@@ -561,7 +561,7 @@ We're grateful to the open-source community and the following organizations that
 
 ---
 
-[![⭐ Star us on GitHub](https://img.shields.io/github/stars/your-repo/AushadX?style=social)](https://github.com/your-repo/AushadX)
+[![⭐ Star us on GitHub](https://img.shields.io/github/stars/your-repo/AushadX?style=social)](https://github.com/vipulchinmay/projectaushadX)
 [![🐦 Follow on Twitter](https://img.shields.io/twitter/follow/AushadX?style=social)](https://twitter.com/AushadX)
 [![💬 Join Discord](https://img.shields.io/discord/123456789?style=social&logo=discord)](https://discord.gg/AushadX)
 
